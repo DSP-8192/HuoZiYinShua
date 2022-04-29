@@ -10,4 +10,5 @@ playtext(rawData, tempPath = ".\\HZYSTempOutput\\temp.wav"):<br>
 	&emsp;&emsp;rawData同上<br>
 	&emsp;&emsp;tempPath为临时文件路径，可不填<br>
 <br>
-具体使用示例见".\main.py"
+具体使用示例见".\main.py"<br>
+效果：https://www.bilibili.com/video/BV1R541117uE
