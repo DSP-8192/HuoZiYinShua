@@ -1,0 +1,3 @@
+pydub==0.25.1
+pypinyin==0.46.0
+playsound==1.3.0
