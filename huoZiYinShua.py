@@ -9,12 +9,18 @@ import csv
 from pathlib import Path
 
 
+#文件路径转文件夹路径
+def _fileName2FolderName(fileName):
+	for i in range(len(fileName)-1, -1, -1):
+		if fileName[i] == '\\' or fileName[i] == '/':
+			return fileName[0:i+1]
+
+
 
 class huoZiYinShua:	
 	def __init__(self, voicePath, dictionaryPath):
-		self.voicePath = voicePath
-		self.dictionary = list(csv.reader(open(dictionaryPath)))
-		self.dictionary = list(zip(*(self.dictionary)))
+		self.__voicePath = voicePath
+		self.__dictionary = dict(csv.reader(open(dictionaryPath)))
 		
 	
 	
@@ -44,9 +50,9 @@ class huoZiYinShua:
 		sentence = ""
 		#处理每一个符号
 		for ch in rawData:
-			if ch in self.dictionary[0]:
+			if ch in self.__dictionary:
 				#词典中存在匹配，转换
-				sentence += self.dictionary[1][self.dictionary[0].index(ch)] + " "
+				sentence += self.__dictionary[ch] + " "
 			else:
 				#保持不变
 				sentence += ch + " ";
@@ -59,31 +65,22 @@ class huoZiYinShua:
 			for word in text.split():
 				#拼接每一个字
 				try:
-					self.__concatenated += AudioSegment.from_file(self.voicePath + word + ".wav", format = "wav")
-					self.__concatenated += AudioSegment.silent(duration = 100)
+					self.__concatenated += AudioSegment.from_file(self.__voicePath + word + ".wav", format = "wav")
+					self.__concatenated += AudioSegment.silent(duration = 50)
 				except:
 					if word not in missingPinyin:
 						missingPinyin.append(word)
-					self.__concatenated += AudioSegment.silent(duration = 350)
+					self.__concatenated += AudioSegment.silent(duration = 250)
 		
 		#如果缺失拼音，则发出警告
 		if len(missingPinyin) != 0:
-			print("警告：缺失以下内容：")
-			print(missingPinyin)
+			print("警告：缺失{}".format(missingPinyin))
 		
 
 	
 	#导出wav文件
 	def __export(self, filePath):
-		folderPath = self.__fileName2FolderName(filePath)
+		folderPath = _fileName2FolderName(filePath)
 		if not Path(folderPath).exists():
 			Path(folderPath).mkdir()
 		self.__concatenated.export(filePath, format = "wav")
-	
-	
-	
-	#文件路径转文件夹路径
-	def __fileName2FolderName(self, fileName):
-		for i in range(len(fileName)-1, -1, -1):
-			if fileName[i] == '\\' or fileName[i] == '/':
-				return fileName[0:i+1]
