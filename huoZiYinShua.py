@@ -33,7 +33,7 @@ class huoZiYinShua:
 	
 	
 	#直接播放
-	def playtext(self, rawData, tempPath = ".\\HZYSTempOutput\\temp.wav"):
+	def playText(self, rawData, tempPath = ".\\HZYSTempOutput\\temp.wav"):
 		self.__execute(rawData)
 		self.__export(tempPath)
 		playsound(tempPath)
