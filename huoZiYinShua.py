@@ -66,7 +66,6 @@ class huoZiYinShua:
 				#拼接每一个字
 				try:
 					self.__concatenated += AudioSegment.from_file(self.__voicePath + word + ".wav", format = "wav")
-					self.__concatenated += AudioSegment.silent(duration = 50)
 				except:
 					if word not in missingPinyin:
 						missingPinyin.append(word)
