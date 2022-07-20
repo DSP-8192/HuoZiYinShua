@@ -19,8 +19,6 @@ huoZiYinShua.playText(rawData, tempPath = ".\\HZYSTempOutput\\temp.wav")
 	# tempPath为临时文件路径，可不填
 ```
 
-Release中的"main.exe"是打包好的程序，可直接运行
-
 效果：https://www.bilibili.com/video/BV1R541117uE
 
 # 使用方法
