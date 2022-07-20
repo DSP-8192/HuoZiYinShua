@@ -1,0 +1,10 @@
+./__pycache__
+./HZYSTempOutput
+Output.wav
+
+# Build file
+./build
+./dist
+
+# Spec file(pyinstaller)
+*.spec
