@@ -1,6 +1,6 @@
 {
 	"sourceDirectory":".\\sources\\",
-	"dictDirectory":".\\dictionary.csv",
-	"inputDirectory":".\\textToRead.txt",
-	"outputDirectory":".\\Output.wav"
+	"dictFile":".\\dictionary.csv",
+	"inputFile":".\\textToRead.txt",
+	"outputFile":".\\Output.wav"
 }

@@ -28,12 +28,12 @@ class huoZiYinShua:
 	def export(self, rawData, filePath):		
 		self.__execute(rawData)
 		self.__export(filePath)
-		print("已导出" + filePath)
+		print("已导出到当前目录" + filePath + "下")
 	
 	
 	
 	#直接播放
-	def playText(self, rawData, tempPath = ".\\HZYSTempOutput\\temp.wav"):
+	def playText(self, rawData, tempPath = '.\HZYSTempOutput\\temp.wav'):
 		self.__execute(rawData)
 		self.__export(tempPath)
 		playsound(tempPath)
