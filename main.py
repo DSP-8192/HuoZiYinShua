@@ -11,18 +11,16 @@ if __name__ == "__main__":
 	parser.add_argument('-o', '--output', help="输出音频文件名称，例如:./输出.wav", default=".\\Output.wav")
 	parser.add_argument('-f', '--file', help="读取的文件名称", default="textToRead.txt")
 	#打开设置文件
-	configFile= open(".\\settings.json", encoding="utf8")
+	configFile = open(".\\settings.json", encoding="utf8")
 	settings = json.load(configFile)
 	configFile.close()
 	
 	#读取设置
-	sourceDir = settings["sourceDirectory"]		#音频文件存放目录
-	dictFile = settings["dictFile"]			#词典存放文件 (csv)
 	inputFile = settings["inputFile"]		#输入文件 (txt)
 	outputFile = settings["outputFile"]		#输出文件 (wav)
 
 	#新建活字印刷类实例
-	HZYS = huoZiYinShua(sourceDir, dictFile)
+	HZYS = huoZiYinShua(settings)
 	#要印刷的文本
 	textToRead = "我是你跌"
 
@@ -61,7 +59,7 @@ if __name__ == "__main__":
 	#(不会对直接运行造成影响)
 	if (args.directplay == True):
 		print('直接播放')
-		HZYS.playText(textToRead)
+		HZYS.directPlay(textToRead)
 	else:
 		#导出
 		HZYS.export(textToRead, outputFile)
