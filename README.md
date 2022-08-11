@@ -14,7 +14,7 @@ rawData为要阅读的文本（字符串）
 filePath为保存的文件路径（字符串）
 
 ```python
-huoZiYinShua.playText(rawData, tempPath = ".\\HZYSTempOutput\\temp.wav")
+huoZiYinShua.directPlay(rawData, tempPath = ".\\HZYSTempOutput\\temp.wav")
 	# rawData同上
 	# tempPath为临时文件路径，可不填
 ```
