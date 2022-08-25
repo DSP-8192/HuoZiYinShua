@@ -2,8 +2,5 @@
 	"sourceDirectory":".\\sources\\",
 	"ysddSourceDirectory":".\\ysddSources\\",
 	"dictFile":".\\dictionary.csv",
-	"ysddTableFile":".\\ysddTable.csv",
-	"ysddModeEnabled": true,
-	"inputFile":".\\textToRead.txt",
-	"outputFile":".\\Output.wav"
+	"ysddTableFile":".\\ysddTable.csv"
 }
