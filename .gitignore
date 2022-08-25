@@ -1,2 +1,13 @@
+#临时文件
 /__pycache__
 /HZYSTempOutput
+
+#用于测试的输入输出
+Output.wav
+textToRead.txt
+
+#pyinstaller生成的文件
+/dist
+/build
+*.spec
+活字印刷本地版V1.2.zip
