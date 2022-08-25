@@ -6,20 +6,23 @@
 
 huoZiYinShua类里有两个方法：
 ```python
-huoZiYinShua.export(rawData, filePath)
+huoZiYinShua.export(rawData, filePath=".\\Output.wav", inYsddMode=False)
+	# rawData为要阅读的文本（字符串）
+	# filePath为保存的文件路径（字符串）
+	# inYsddMode为是否使用原声大碟模式（boolean变量，默认否）
 ```
 
-rawData为要阅读的文本（字符串）
-
-filePath为保存的文件路径（字符串）
-
 ```python
-huoZiYinShua.directPlay(rawData, tempPath = ".\\HZYSTempOutput\\temp.wav")
+huoZiYinShua.directPlay(rawData, tempPath=".\\HZYSTempOutput\\temp.wav", inYsddMode=False)
 	# rawData同上
 	# tempPath为临时文件路径，可不填
+	# inYsddMode同上
 ```
 
 效果：https://www.bilibili.com/video/BV1R541117uE
+
+<br>
+<br>
 
 # 使用方法
 
