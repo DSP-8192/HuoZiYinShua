@@ -1,18 +1,17 @@
 from huoZiYinShua import *
-import os
 import argparse
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="使用程序进行电棍活版印刷")
 	parser.add_argument("-t", "--text", help="要输出的文字", default="我是你跌")
 	parser.add_argument("-d", "--directplay", help="直接播放声音", default=False, action="store_true")
-	parser.add_argument("-o", "--output", help="输出音频文件名称，例如.\\输出.wav", default=".\\Output.wav")
-	parser.add_argument("-f", "--file", help="读取的文件名称，例如.\\输入.txt", default="")
+	parser.add_argument("-o", "--output", help="输出音频文件名称，例如./输出.wav", default="./Output.wav")
+	parser.add_argument("-f", "--file", help="读取的文件名称，例如./输入.txt", default="")
 	parser.add_argument("-y", "--inYsddMode", help="匹配到特定文字时使用原声大碟", default=False, action="store_true")
 
 
 	#新建活字印刷类实例
-	HZYS = huoZiYinShua(".\\settings.json")
+	HZYS = huoZiYinShua("./settings.json")
 
 	args = parser.parse_args()
 
@@ -38,4 +37,4 @@ if __name__ == "__main__":
 	#导出
 	else:
 		HZYS.export(textToRead, outputFile, inYsddMode=args.inYsddMode)
-	os.system("pause")
+	programPause = input("按下回车以退出...")

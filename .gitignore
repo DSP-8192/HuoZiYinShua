@@ -10,4 +10,6 @@ textToRead.txt
 /dist
 /build
 *.spec
-活字印刷本地版V1.2.zip
+
+#打包好的文件
+*.zip

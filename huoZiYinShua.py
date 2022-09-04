@@ -38,7 +38,7 @@ class huoZiYinShua:
 
 	
 	#直接导出
-	def export(self, rawData, filePath=".\\Output.wav", inYsddMode=False):		
+	def export(self, rawData, filePath="./Output.wav", inYsddMode=False):		
 		self.__concatenate(rawData, inYsddMode)
 		self.__export(filePath)
 		print("已导出到当前目录" + filePath + "下")
@@ -46,7 +46,7 @@ class huoZiYinShua:
 	
 	
 	#直接播放
-	def directPlay(self, rawData, tempPath=".\\HZYSTempOutput\\temp.wav", inYsddMode=False):
+	def directPlay(self, rawData, tempPath="./HZYSTempOutput/temp.wav", inYsddMode=False):
 		self.__concatenate(rawData, inYsddMode)
 		self.__export(tempPath)
 		playsound(tempPath)
