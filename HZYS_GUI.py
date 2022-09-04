@@ -1,10 +1,14 @@
 import ctypes
 from tkinter import Checkbutton, Tk, Button, messagebox, scrolledtext, filedialog, BooleanVar
+import os
 from huoZiYinShua import *
+from multiprocessing import Process, freeze_support
 
 
 #新建活字印刷类实例
 HZYS = huoZiYinShua(".\\settings.json")
+#播放音频的进程
+myProcess = Process()
 
 
 
@@ -27,8 +31,17 @@ topFrame.title("欧炫！纯纯的活字印刷")
 #-------------------------------------------
 #直接播放的监听事件
 def onDirectPlay():
+	global myProcess
+	#停止播放按钮上次点击时播放的音频
+	try:
+		myProcess.terminate()
+	except:
+		pass
+	#播放
 	textToRead = textArea.get(1.0, 'end')
-	HZYS.directPlay(textToRead, inYsddMode=inYsddMode.get())
+	myProcess = Process(target=HZYS.directPlay,
+						kwargs={"rawData": textToRead, "inYsddMode": inYsddMode.get()})
+	myProcess.start()
 
 
 #导出的监听事件
@@ -74,7 +87,18 @@ exportButton.place(x=280, y=260)
 
 
 
-#控件打包
+#主函数
 #-------------------------------------------
-textArea.pack()
-topFrame.mainloop()
+if __name__ == "__main__":
+	freeze_support()
+
+	#控件打包
+	textArea.pack()
+	topFrame.mainloop()
+
+	#退出
+	try:
+		myProcess.terminate()
+	except:
+		pass
+	os._exit(0)

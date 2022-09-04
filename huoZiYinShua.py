@@ -4,10 +4,9 @@
 
 from pydub import AudioSegment
 from pypinyin import lazy_pinyin
-import csv
 import json
 from pathlib import Path
-import playsound
+from playsound import playsound
 
 
 #文件路径转文件夹路径
@@ -25,13 +24,13 @@ class huoZiYinShua:
 		configuration = json.load(configFile)
 		configFile.close()
 
-		dictFile = open(configuration["dictFile"], encoding="utf8")			#读取单字词典 (csv)
-		ysddTableFile = open(configuration["ysddTableFile"], encoding="utf8")		#读取原声大碟文本与文件名对照表 (csv)
+		dictFile = open(configuration["dictFile"], encoding="utf8")					#读取单字词典 (json)
+		ysddTableFile = open(configuration["ysddTableFile"], encoding="utf8")		#读取原声大碟文本与文件名对照表 (json)
 
 		self.__voicePath = configuration["sourceDirectory"]					#单字音频文件存放目录
 		self.__ysddPath = configuration["ysddSourceDirectory"]				#原声大碟音频文件存放目录
-		self.__dictionary = dict(csv.reader(dictFile, delimiter=","))		#词典存放文件 (csv)
-		self.__ysddTable = dict(csv.reader(ysddTableFile, delimiter="\t"))	#原声大碟文本与文件名对照表 (csv)
+		self.__dictionary = json.load(dictFile)								#定义非中文字符读法的词典
+		self.__ysddTable = json.load(ysddTableFile)							#原声大碟文本与文件名对照表
 
 		self.__ysddTable = sorted(self.__ysddTable.items(), key=lambda x:len(x[0]), reverse=True)	#从长到短排序
 		self.__ysddTable = dict(self.__ysddTable)
@@ -50,14 +49,19 @@ class huoZiYinShua:
 	def directPlay(self, rawData, tempPath=".\\HZYSTempOutput\\temp.wav", inYsddMode=False):
 		self.__concatenate(rawData, inYsddMode)
 		self.__export(tempPath)
-		playsound.playsound(tempPath)
+		playsound(tempPath)
 	
 	
 	
 	#生成中间文件
 	def __concatenate(self, rawData, inYsddMode):
 		missingPinyin = []
-		self.__concatenated = AudioSegment.empty()
+		self.__concatenated = AudioSegment(
+    		data=b"",
+			sample_width=2,
+			frame_rate=44100,
+			channels=1
+		)
 		
 		#预处理，转为小写
 		rawData = rawData.lower()
@@ -114,7 +118,11 @@ class huoZiYinShua:
 					for word in text.split():
 						#拼接每一个字
 						try:
-							self.__concatenated += AudioSegment.from_file(self.__voicePath + word + ".wav", format = "wav")
+							self.__concatenated += AudioSegment.from_file(self.__voicePath + word + ".wav",
+																		format = "wav",
+																		frame_rate=44100,
+																		channels=1,
+																		sample_width=2)
 						except:
 							if word not in missingPinyin:
 								missingPinyin.append(word)

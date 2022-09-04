@@ -1,6 +1,6 @@
 {
 	"sourceDirectory":".\\sources\\",
 	"ysddSourceDirectory":".\\ysddSources\\",
-	"dictFile":".\\dictionary.csv",
-	"ysddTableFile":".\\ysddTable.csv"
+	"dictFile":".\\dictionary.json",
+	"ysddTableFile":".\\ysddTable.json"
 }
