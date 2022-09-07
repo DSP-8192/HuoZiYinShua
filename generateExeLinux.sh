@@ -1,0 +1,2 @@
+nuitka3 --enable-plugin=tk-inter --standalone --onefile --disable-console --output-dir=./excutables/Linux/ ./HZYS_GUI.py
+nuitka3 --standalone --onefile --enable-console --output-dir=./excutables/Linux/ ./HZYS.py

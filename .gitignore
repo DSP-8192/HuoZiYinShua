@@ -6,10 +6,10 @@
 Output.wav
 textToRead.txt
 
-#pyinstaller生成的文件
-/dist
-/build
-*.spec
+#转换成可执行文件过程中生成的临时文件
+/excutables
 
 #打包好的文件
+*.exe
+*.bin
 *.zip

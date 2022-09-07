@@ -1,6 +1,6 @@
 {
-	"sourceDirectory":"./sources/",
-	"ysddSourceDirectory":"./ysddSources/",
-	"dictFile":"./dictionary.json",
-	"ysddTableFile":"./ysddTable.json"
+	"sourceDirectory": "E:/鬼畜/活字印刷本地版/sources/",
+	"ysddSourceDirectory": "E:/鬼畜/活字印刷本地版/ysddSources/",
+	"dictFile": "E:/鬼畜/活字印刷本地版/dictionary.json",
+	"ysddTableFile": "E:/鬼畜/活字印刷本地版/ysddTable.json"
 }

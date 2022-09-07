@@ -19,6 +19,15 @@ def _fileName2FolderName(fileName):
 
 class huoZiYinShua:
 	def __init__(self, configFileLoc):
+		try:
+			self.config(configFileLoc)
+		except:
+			pass
+
+
+
+	#配置
+	def config(self, configFileLoc):
 		#读取设置文件
 		configFile = open(configFileLoc, encoding="utf8")
 		configuration = json.load(configFile)
