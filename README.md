@@ -32,6 +32,8 @@ huoZiYinShua.directPlay(rawData, tempPath="./HZYSTempOutput/temp.wav", inYsddMod
 
 若使用旧版或命令行运行，请使用HZYS.exe
 
+若是Linux系统，运行HZYS_GUI.bin和HZYS.bin
+
 命令行模式示例:
 
 ```powershell
