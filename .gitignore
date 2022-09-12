@@ -13,3 +13,6 @@ textToRead.txt
 *.exe
 *.bin
 *.zip
+
+#用于测试模块的代码
+*.ipynb

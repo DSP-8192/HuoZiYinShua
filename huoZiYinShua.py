@@ -2,11 +2,24 @@
 #鬼畜音源的活字印刷
 #作者：DSP_8192
 
-from pydub import AudioSegment
+from librosa import load as librosa_load
+from librosa.effects import pitch_shift
+from soundfile import write as sf_write
+from playsound import playsound
+
+from numpy import array as np_array
 from pypinyin import lazy_pinyin
 import json
 from pathlib import Path
-from playsound import playsound
+
+
+
+_keyWordPitchMap = {
+	"laotou": -5,
+	"xiaohai": 12,
+	"xingzhuan": 6
+}
+
 
 
 #文件路径转文件夹路径
@@ -17,12 +30,21 @@ def _fileName2FolderName(fileName):
 
 
 
+#活字印刷类
 class huoZiYinShua:
 	def __init__(self, configFileLoc):
 		try:
 			self.config(configFileLoc)
-		except:
-			pass
+			self.__configSucceed = True
+		except Exception as e:
+			self.__configSucceed = False
+			print(e)		
+
+
+
+	#配置是否成功
+	def configSucceed(self):
+		return self.__configSucceed
 
 
 
@@ -47,30 +69,27 @@ class huoZiYinShua:
 
 	
 	#直接导出
-	def export(self, rawData, filePath="./Output.wav", inYsddMode=False):		
-		self.__concatenate(rawData, inYsddMode)
+	def export(self, rawData, filePath="./Output.wav", inYsddMode=False,
+				pitchShift="disabled"):		
+		self.__concatenate(rawData, inYsddMode, pitchShift)
 		self.__export(filePath)
 		print("已导出到当前目录" + filePath + "下")
 	
 	
 	
 	#直接播放
-	def directPlay(self, rawData, tempPath="./HZYSTempOutput/temp.wav", inYsddMode=False):
-		self.__concatenate(rawData, inYsddMode)
+	def directPlay(self, rawData, tempPath="./HZYSTempOutput/temp.wav",
+					inYsddMode=False, pitchShift="xingzhuan"):
+		self.__concatenate(rawData, inYsddMode, pitchShift)
 		self.__export(tempPath)
 		playsound(tempPath)
 	
 	
 	
 	#生成中间文件
-	def __concatenate(self, rawData, inYsddMode):
+	def __concatenate(self, rawData, inYsddMode, pitchShift):
 		missingPinyin = []
-		self.__concatenated = AudioSegment(
-    		data=b"",
-			sample_width=2,
-			frame_rate=44100,
-			channels=1
-		)
+		self.__concatenated = []
 		
 		#预处理，转为小写
 		rawData = rawData.lower()
@@ -127,23 +146,30 @@ class huoZiYinShua:
 					for word in text.split():
 						#拼接每一个字
 						try:
-							self.__concatenated += AudioSegment.from_file(self.__voicePath + word + ".wav",
-																		format = "wav",
-																		frame_rate=44100,
-																		channels=1,
-																		sample_width=2)
+							self.__concatenated += librosa_load(path=self.__voicePath + word + ".wav",
+																sr=44100, mono=True)[0].tolist()
 						except:
 							if word not in missingPinyin:
 								missingPinyin.append(word)
-							self.__concatenated += AudioSegment.silent(duration = 250)
+							self.__concatenated += list(0 for i in range(0, 10000))
 			#使用原声大碟
 			else:
 				try:
-					self.__concatenated += AudioSegment.from_file(self.__ysddPath + self.__ysddTable[pronunciations[i][0]] + ".wav", format = "wav")
+					self.__concatenated += librosa_load(path=self.__ysddPath + self.__ysddTable[pronunciations[i][0]] + ".wav",
+														sr=44100, mono=True)[0].tolist()
 				except:
 					if self.__ysddTable[pronunciations[i][0]] not in missingPinyin:
 						missingPinyin.append(self.__ysddTable[pronunciations[i][0]])
-					self.__concatenated += AudioSegment.silent(duration = 250)
+					self.__concatenated += list(0 for i in range(0, 10000))
+
+
+		#音高偏移
+		if (pitchShift != "disabled"):
+			self.__concatenated = np_array(self.__concatenated)
+			self.__concatenated = pitch_shift(y=self.__concatenated, sr=44100,
+											n_steps=_keyWordPitchMap[pitchShift])
+			self.__concatenated = self.__concatenated.tolist()
+		
 
 		#如果缺失拼音，则发出警告
 		if len(missingPinyin) != 0:
@@ -156,4 +182,4 @@ class huoZiYinShua:
 		folderPath = _fileName2FolderName(filePath)
 		if not Path(folderPath).exists():
 			Path(folderPath).mkdir()
-		self.__concatenated.export(filePath, format = "wav")
+		sf_write(file=filePath, data=np_array(self.__concatenated), samplerate=44100)

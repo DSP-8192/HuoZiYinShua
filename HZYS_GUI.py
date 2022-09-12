@@ -1,7 +1,8 @@
 from platform import system
 from tkinter import Tk, Toplevel
-from tkinter import Checkbutton, Button, messagebox, scrolledtext, filedialog
-from tkinter import Label, BooleanVar, font
+from tkinter import messagebox, filedialog
+from tkinter import Checkbutton, Button, scrolledtext, OptionMenu
+from tkinter import Label, font, BooleanVar, StringVar
 from huoZiYinShua import *
 from multiprocessing import Process, freeze_support
 from PIL import ImageTk, Image
@@ -34,7 +35,8 @@ def onDirectPlay():
 	#播放
 	textToRead = textArea.get(1.0, 'end')
 	myProcess = Process(target=HZYS.directPlay,
-						kwargs={"rawData": textToRead, "inYsddMode": inYsddMode.get()})
+						kwargs={"rawData": textToRead, "inYsddMode": inYsddMode.get(),
+								"pitchShift": optionConvertMap[pitchShiftOption.get()]})
 	myProcess.start()
 
 
@@ -46,7 +48,8 @@ def onExport():
 	if(outputFile != ""):
 		if not outputFile.endswith(".wav"):
 			outputFile += ".wav"
-		HZYS.export(textToRead, filePath=outputFile, inYsddMode=inYsddMode.get())
+		HZYS.export(textToRead, filePath=outputFile, inYsddMode=inYsddMode.get(),
+					pitchShift=optionConvertMap[pitchShiftOption.get()])
 		messagebox.showinfo("疑似是成功了", "已导出到" + outputFile +"下")
 
 
@@ -103,7 +106,7 @@ def createConfigWindow():
 		img = ImageTk.PhotoImage(Image.open("./lizi.ico"))
 		configWindow.tk.call('wm', 'iconphoto', configWindow._w, img)
 	except:
-		messagebox.showinfo("警告", "缺失图标")
+		messagebox.showwarning("警告", "缺失图标")
 	#读取设置
 	configuration = readConfig()
 
@@ -148,9 +151,16 @@ def createConfigWindow():
 	
 
 
-#生成选项
+#储存生成选项的变量
 #-------------------------------------------
 inYsddMode = BooleanVar()
+pitchShiftOption = StringVar()
+optionConvertMap = {
+	"正常": "disabled",
+	"说的道莉": "xingzhuan",
+	"说的老理": "laotou",
+	"谁家小孩": "xiaohai"
+}
 
 
 
@@ -183,6 +193,18 @@ configButton = Button(mainWindow, text="设置", command=createConfigWindow, hei
 					font=font.Font(family="微软雅黑", size=11))
 
 
+#音调偏移文本
+pitchShiftLabel = Label(mainWindow, text="音调偏移选项：",
+					font=font.Font(family="微软雅黑", size=10))
+
+
+#音调偏移
+pitchShiftMenu = OptionMenu(mainWindow, pitchShiftOption,
+							*list(optionConvertMap.keys()))
+
+
+
+
 
 #主函数
 #-------------------------------------------
@@ -197,27 +219,35 @@ if __name__ == "__main__":
 	#主窗口
 	#-----------------------------
 	#设置窗口大小
-	mainWindow.geometry("480x320")
+	mainWindow.geometry("480x360")
 	#窗口图标
 	try:
 		img = ImageTk.PhotoImage(Image.open("./lizi.ico"))
 		mainWindow.tk.call('wm', 'iconphoto', mainWindow._w, img)
 	except:
-		messagebox.showinfo("警告", "缺失图标")
+		messagebox.showwarning("警告", "缺失图标")
 	#窗口标题
 	mainWindow.title("欧炫！纯纯的活字印刷")
 
 	#元素属性
 	#-----------------------------
 	textArea.place(x=10, y=0)
-	ysddCkBt.place(x=20, y=230)
-	playButton.place(x=70, y=265)
-	exportButton.place(x=190, y=265)
-	configButton.place(x=310, y=265)
+
+	playButton.place(x=70, y=230)
+	exportButton.place(x=190, y=230)
+	configButton.place(x=310, y=230)
+
+	ysddCkBt.place(x=20, y=280)
+	pitchShiftLabel.place(x=20, y=310)
+	pitchShiftOption.set("正常")
+	pitchShiftMenu.place(x=110, y=310)
 
 
-	#控件打包
+	#检查活字印刷实例是否配置正确
+	if not HZYS.configSucceed():
+		messagebox.showerror("配置活字印刷实例失败", "请检查设置的文件路径是否正确")
 	
+	#启动主窗口
 	mainWindow.mainloop()
 
 	#退出
