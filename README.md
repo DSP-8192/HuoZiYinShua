@@ -8,10 +8,12 @@
 
 huoZiYinShua类里有两个方法：
 ```python
-huoZiYinShua.export(rawData, filePath="./Output.wav", inYsddMode=False)
+huoZiYinShua.export(rawData, filePath="./Output.wav", inYsddMode=False, pitchShift="disabled")
 	# rawData为要阅读的文本（字符串）
 	# filePath为保存的文件路径（字符串）
 	# inYsddMode为是否使用原声大碟模式（boolean变量，默认否）
+	# pitchShift为音调偏移模式（字符串，默认"disabled"）
+		#可用值：小孩音"xiaohai"，老头音"laotou"，性转"xingzhuan"，不偏移"disabled"
 ```
 
 ```python
@@ -19,6 +21,7 @@ huoZiYinShua.directPlay(rawData, tempPath="./HZYSTempOutput/temp.wav", inYsddMod
 	# rawData同上
 	# tempPath为临时文件路径，可不填
 	# inYsddMode同上
+	# pitchShift同上
 ```
 
 效果：https://www.bilibili.com/video/BV1R541117uE
@@ -41,5 +44,6 @@ huoZiYinShua.directPlay(rawData, tempPath="./HZYSTempOutput/temp.wav", inYsddMod
 ./HZYS.exe -f text.txt -o 输出.wav #输出text.txt内的音频文本到输出.wav
 ./HYZS.exe -t 卧槽冰 -d #直接播放(参数-d)
 ./HZYS.exe -t 大家好啊 -d -y #使用原声大碟
+./HZYS.exe -t 啊啊啊啊啊 -d -p xiaohai #使用小孩音
 ./HYZS.exe -h #显示帮助
 ```

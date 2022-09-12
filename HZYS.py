@@ -8,6 +8,7 @@ if __name__ == "__main__":
 	parser.add_argument("-o", "--output", help="输出音频文件名称，例如./输出.wav", default="./Output.wav")
 	parser.add_argument("-f", "--file", help="读取的文件名称，例如./输入.txt", default="")
 	parser.add_argument("-y", "--inYsddMode", help="匹配到特定文字时使用原声大碟", default=False, action="store_true")
+	parser.add_argument("-p", "--pitchShift", help="指定音调偏移选项（xiaohai, laotou, xingzhuan）", default="disabled")
 
 
 	#新建活字印刷类实例
@@ -24,17 +25,19 @@ if __name__ == "__main__":
 	#使用文本，不读取文件
 	else:
 		textToRead = args.text
+	
 	outputFile = args.output
 
 	print("输出文本:" + textToRead)
+	print("生成中...")
 
 
 	#判定命令行参数，确定是否直接播放声音
 	#直接播放
 	if (args.directplay == True):
 		print("直接播放")
-		HZYS.directPlay(textToRead, inYsddMode=args.inYsddMode)
+		HZYS.directPlay(textToRead, inYsddMode=args.inYsddMode, pitchShift=args.pitchShift)
 	#导出
 	else:
-		HZYS.export(textToRead, outputFile, inYsddMode=args.inYsddMode)
+		HZYS.export(textToRead, outputFile, inYsddMode=args.inYsddMode, pitchShift=args.pitchShift)
 	programPause = input("按下回车以退出...")

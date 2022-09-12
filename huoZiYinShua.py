@@ -73,13 +73,13 @@ class huoZiYinShua:
 				pitchShift="disabled"):		
 		self.__concatenate(rawData, inYsddMode, pitchShift)
 		self.__export(filePath)
-		print("已导出到当前目录" + filePath + "下")
+		print("已导出到" + filePath + "下")
 	
 	
 	
 	#直接播放
 	def directPlay(self, rawData, tempPath="./HZYSTempOutput/temp.wav",
-					inYsddMode=False, pitchShift="xingzhuan"):
+					inYsddMode=False, pitchShift="disabled"):
 		self.__concatenate(rawData, inYsddMode, pitchShift)
 		self.__export(tempPath)
 		playsound(tempPath)
