@@ -1,2 +1,2 @@
-CALL nuitka --enable-plugin=tk-inter --standalone --onefile --disable-console --output-dir=./excutables/Windows/ ./HZYS_GUI.py
-CALL nuitka --standalone --onefile --enable-console --output-dir=./excutables/Windows/ ./HZYS.py
+CALL nuitka --mingw --disable-console --enable-plugin=numpy,tk-inter --nofollow-import-to=matplotlib --include-data-dir="E:/ProgramFiles/Python/Lib/site-packages/_soundfile_data"="_soundfile_data" --standalone --onefile --output-dir=./excutables/Windows/ ./HZYS_GUI.py
+CALL nuitka --mingw --enable-console --enable-plugin=numpy --nofollow-import-to=matplotlib --include-data-dir="E:/ProgramFiles/Python/Lib/site-packages/_soundfile_data"="_soundfile_data" --standalone --onefile --output-dir=./excutables/Windows/ ./HZYS.py

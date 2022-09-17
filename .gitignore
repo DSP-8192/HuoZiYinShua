@@ -3,7 +3,7 @@
 /HZYSTempOutput
 
 #用于测试的输入输出
-Output.wav
+*.wav
 textToRead.txt
 
 #转换成可执行文件过程中生成的临时文件

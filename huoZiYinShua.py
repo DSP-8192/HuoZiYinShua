@@ -2,26 +2,36 @@
 #鬼畜音源的活字印刷
 #作者：DSP_8192
 
-from librosa import load as librosa_load
-from librosa.effects import pitch_shift
-from soundfile import write as sf_write
+import soundfile as sf
+import psola
+import numpy as np
 from playsound import playsound
-
-from numpy import array as np_array
 from pypinyin import lazy_pinyin
 import json
 from pathlib import Path
 
 
 
+
+#--------------------------------------------
+#全局变量
+#--------------------------------------------
+#目标采样率
+_targetSR = 44100
+
+#关键词与频率伸缩系数对照
 _keyWordPitchMap = {
-	"laotou": -5,
-	"xiaohai": 12,
-	"xingzhuan": 6
+	"laotou": 0.8,
+	"xiaohai": 1.5,
+	"xingzhuan": 1.3
 }
 
 
 
+
+#--------------------------------------------
+#自定义函数
+#--------------------------------------------
 #文件路径转文件夹路径
 def _fileName2FolderName(fileName):
 	for i in range(len(fileName)-1, -1, -1):
@@ -30,7 +40,40 @@ def _fileName2FolderName(fileName):
 
 
 
+#读取音频文件
+def _loadAudio(fileDir):
+	data, sampleRate = sf.read(fileDir)
+	#双声道转单声道
+	if (len(data.shape) == 2):
+		#左右声道相加除以2
+		data = (data[:, 0] + data[:, 1]) / 2
+	
+	#统一采样率
+	if (sampleRate != _targetSR):
+		#计算转换后的长度
+		newLength = int((_targetSR / sampleRate) * len(data))
+		#转换
+		data = np.interp(np.array(range(newLength)), np.linspace(0,newLength-1,len(data)), data)
+	
+	return data
+
+
+
+#移动音高
+def _shiftPitch(data, scaleFactor):
+	#不改变音高的同时在时间上拉伸（PSOLA）
+	dataStretched = psola.vocode(data, _targetSR, constant_stretch=1/scaleFactor)
+	#拉伸至原来的长度，但是改变原来的音高
+	dataPitchShifted = np.interp(np.array(range(len(data))),
+								np.linspace(0,len(data)-1,len(dataStretched)), dataStretched)
+	return dataPitchShifted
+
+
+
+
+#--------------------------------------------
 #活字印刷类
+#--------------------------------------------
 class huoZiYinShua:
 	def __init__(self, configFileLoc):
 		try:
@@ -89,7 +132,7 @@ class huoZiYinShua:
 	#生成中间文件
 	def __concatenate(self, rawData, inYsddMode, pitchShift):
 		missingPinyin = []
-		self.__concatenated = []
+		self.__concatenated = np.array([])
 		
 		#预处理，转为小写
 		rawData = rawData.lower()
@@ -146,29 +189,41 @@ class huoZiYinShua:
 					for word in text.split():
 						#拼接每一个字
 						try:
-							self.__concatenated += librosa_load(path=self.__voicePath + word + ".wav",
-																sr=44100, mono=True)[0].tolist()
-						except:
+							self.__concatenated = np.concatenate((self.__concatenated,
+																_loadAudio(self.__voicePath + word + ".wav")))
+						#如果出现错误
+						except Exception as e:
+							print(e)		#显示错误信息
+							#加入缺失素材列表
 							if word not in missingPinyin:
 								missingPinyin.append(word)
-							self.__concatenated += list(0 for i in range(0, 10000))
+							#以空白音频代替
+							self.__concatenated = np.concatenate((self.__concatenated,
+																np.zeros(int(_targetSR/4))))
+			
 			#使用原声大碟
 			else:
+				#拼接
 				try:
-					self.__concatenated += librosa_load(path=self.__ysddPath + self.__ysddTable[pronunciations[i][0]] + ".wav",
-														sr=44100, mono=True)[0].tolist()
-				except:
+					self.__concatenated = np.concatenate((self.__concatenated,
+														_loadAudio(self.__ysddPath
+																	+ self.__ysddTable[pronunciations[i][0]]
+																	+ ".wav")))
+				#如果出现错误
+				except Exception as e:
+					print(e)		#显示错误信息
+					#加入缺失素材列表
 					if self.__ysddTable[pronunciations[i][0]] not in missingPinyin:
 						missingPinyin.append(self.__ysddTable[pronunciations[i][0]])
-					self.__concatenated += list(0 for i in range(0, 10000))
+					#以空白音频代替
+					self.__concatenated = np.concatenate((self.__concatenated,
+														np.zeros(int(_targetSR/4))))
 
 
 		#音高偏移
 		if (pitchShift != "disabled"):
-			self.__concatenated = np_array(self.__concatenated)
-			self.__concatenated = pitch_shift(y=self.__concatenated, sr=44100,
-											n_steps=_keyWordPitchMap[pitchShift])
-			self.__concatenated = self.__concatenated.tolist()
+			self.__concatenated = _shiftPitch(self.__concatenated,
+											_keyWordPitchMap[pitchShift])
 		
 
 		#如果缺失拼音，则发出警告
@@ -182,4 +237,4 @@ class huoZiYinShua:
 		folderPath = _fileName2FolderName(filePath)
 		if not Path(folderPath).exists():
 			Path(folderPath).mkdir()
-		sf_write(file=filePath, data=np_array(self.__concatenated), samplerate=44100)
+		sf.write(filePath, self.__concatenated, _targetSR)
