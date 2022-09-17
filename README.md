@@ -17,7 +17,7 @@ huoZiYinShua.export(rawData, filePath="./Output.wav", inYsddMode=False, pitchShi
 ```
 
 ```python
-huoZiYinShua.directPlay(rawData, tempPath="./HZYSTempOutput/temp.wav", inYsddMode=False)
+huoZiYinShua.directPlay(rawData, tempPath="./HZYSTempOutput/temp.wav", inYsddMode=False, pitchShift="disabled")
 	# rawData同上
 	# tempPath为临时文件路径，可不填
 	# inYsddMode同上
