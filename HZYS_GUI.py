@@ -1,8 +1,8 @@
 from platform import system
-from tkinter import Tk, Toplevel
+from tkinter import HORIZONTAL, Tk, Toplevel
 from tkinter import messagebox, filedialog
 from tkinter import Checkbutton, Button, scrolledtext, OptionMenu
-from tkinter import Label, font, BooleanVar, StringVar
+from tkinter import Label, font, BooleanVar, DoubleVar, Scale
 from huoZiYinShua import *
 from multiprocessing import Process, freeze_support
 from PIL import ImageTk, Image
@@ -36,7 +36,8 @@ def onDirectPlay():
 	textToRead = textArea.get(1.0, 'end')
 	myProcess = Process(target=HZYS.directPlay,
 						kwargs={"rawData": textToRead, "inYsddMode": inYsddMode.get(),
-								"pitchShift": optionConvertMap[pitchShiftOption.get()]})
+								"pitchShift": pitchShiftOption.get(), "norm": normAudio.get(),
+								"reverse": reverseAudio.get()})
 	myProcess.start()
 
 
@@ -49,7 +50,8 @@ def onExport():
 		if not outputFile.endswith(".wav"):
 			outputFile += ".wav"
 		HZYS.export(textToRead, filePath=outputFile, inYsddMode=inYsddMode.get(),
-					pitchShift=optionConvertMap[pitchShiftOption.get()])
+					pitchShift=pitchShiftOption.get(), norm=normAudio.get(),
+					reverse=reverseAudio.get())
 		messagebox.showinfo("疑似是成功了", "已导出到" + outputFile +"下")
 
 
@@ -154,13 +156,9 @@ def createConfigWindow():
 #储存生成选项的变量
 #-------------------------------------------
 inYsddMode = BooleanVar()
-pitchShiftOption = StringVar()
-optionConvertMap = {
-	"正常": "disabled",
-	"说的道莉": "xingzhuan",
-	"说的老理": "laotou",
-	"谁家小孩": "xiaohai"
-}
+normAudio = BooleanVar()
+reverseAudio = BooleanVar()
+pitchShiftOption = DoubleVar()
 
 
 
@@ -169,12 +167,6 @@ optionConvertMap = {
 #文本框
 textArea = scrolledtext.ScrolledText(mainWindow, width=55, height=11,
 									font=font.Font(family="微软雅黑", size=10))
-
-
-#复选框
-ysddCkBt = Checkbutton(mainWindow, text="匹配到特定文字时使用原声大碟",
-						variable=inYsddMode, onvalue=True, offvalue=False,
-						font=font.Font(family="微软雅黑", size=10))
 
 
 #按钮们
@@ -193,14 +185,33 @@ configButton = Button(mainWindow, text="设置", command=createConfigWindow, hei
 					font=font.Font(family="微软雅黑", size=11))
 
 
+#原声大碟复选框
+ysddCkBt = Checkbutton(mainWindow, text="匹配到特定文字时使用原声大碟",
+						variable=inYsddMode, onvalue=True, offvalue=False,
+						font=font.Font(family="微软雅黑", size=10))
+
+
+#标准化音频复选框
+normCkBt = Checkbutton(mainWindow, text="分别标准化每个字和每条原声大碟句子",
+						variable=normAudio, onvalue=True, offvalue=False,
+						font=font.Font(family="微软雅黑", size=10))
+
+
+#倒放音频复选框
+reverseCkBt = Checkbutton(mainWindow, text="频音的成生放倒",
+						variable=reverseAudio, onvalue=True, offvalue=False,
+						font=font.Font(family="微软雅黑", size=10))
+
+
 #音调偏移文本
 pitchShiftLabel = Label(mainWindow, text="音调偏移选项：",
 					font=font.Font(family="微软雅黑", size=10))
 
 
 #音调偏移
-pitchShiftMenu = OptionMenu(mainWindow, pitchShiftOption,
-							*list(optionConvertMap.keys()))
+pitchShiftScale = Scale(mainWindow, from_=0.4, to=2.0, orient=HORIZONTAL, width=15, length=200,
+						resolution=0.1, variable=pitchShiftOption,
+						font=font.Font(family="微软雅黑", size=9))
 
 
 
@@ -218,16 +229,15 @@ if __name__ == "__main__":
 
 	#主窗口
 	#-----------------------------
-	#设置窗口大小
-	mainWindow.geometry("480x360")
+	mainWindow.geometry("480x420")
+	mainWindow.title("欧炫！纯纯的活字印刷")
+	mainWindow.resizable(False, False)
 	#窗口图标
 	try:
 		img = ImageTk.PhotoImage(Image.open("./lizi.ico"))
 		mainWindow.tk.call('wm', 'iconphoto', mainWindow._w, img)
 	except:
 		messagebox.showwarning("警告", "缺失图标")
-	#窗口标题
-	mainWindow.title("欧炫！纯纯的活字印刷")
 
 	#元素属性
 	#-----------------------------
@@ -238,9 +248,12 @@ if __name__ == "__main__":
 	configButton.place(x=310, y=230)
 
 	ysddCkBt.place(x=20, y=280)
-	pitchShiftLabel.place(x=20, y=310)
-	pitchShiftOption.set("正常")
-	pitchShiftMenu.place(x=110, y=310)
+	normCkBt.place(x=20, y=305)
+	reverseCkBt.place(x=20, y=330)
+	
+	pitchShiftLabel.place(x=20, y=375)
+	pitchShiftOption.set(1)
+	pitchShiftScale.place(x=110, y=360)
 
 
 	#检查活字印刷实例是否配置正确

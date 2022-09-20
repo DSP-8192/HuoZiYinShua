@@ -19,13 +19,6 @@ from pathlib import Path
 #目标采样率
 _targetSR = 44100
 
-#关键词与频率伸缩系数对照
-_keyWordPitchMap = {
-	"laotou": 0.8,
-	"xiaohai": 1.5,
-	"xingzhuan": 1.3
-}
-
 
 
 
@@ -40,21 +33,30 @@ def _fileName2FolderName(fileName):
 
 
 
+#标准化音频，统一音量
+def _normalizeAudio(data):
+	rms = np.sqrt(np.mean(data**2))
+	normData = data / rms * 0.2
+	return normData
+
+
+
 #读取音频文件
-def _loadAudio(fileDir):
+def _loadAudio(fileDir, norm):
 	data, sampleRate = sf.read(fileDir)
 	#双声道转单声道
 	if (len(data.shape) == 2):
 		#左右声道相加除以2
 		data = (data[:, 0] + data[:, 1]) / 2
-	
 	#统一采样率
 	if (sampleRate != _targetSR):
 		#计算转换后的长度
 		newLength = int((_targetSR / sampleRate) * len(data))
 		#转换
 		data = np.interp(np.array(range(newLength)), np.linspace(0,newLength-1,len(data)), data)
-	
+	#标准化
+	if norm:
+		data = _normalizeAudio(data)
 	return data
 
 
@@ -113,8 +115,8 @@ class huoZiYinShua:
 	
 	#直接导出
 	def export(self, rawData, filePath="./Output.wav", inYsddMode=False,
-				pitchShift="disabled"):		
-		self.__concatenate(rawData, inYsddMode, pitchShift)
+				pitchShift=1, norm=False, reverse=False):		
+		self.__concatenate(rawData, inYsddMode, pitchShift, norm, reverse)
 		self.__export(filePath)
 		print("已导出到" + filePath + "下")
 	
@@ -122,15 +124,15 @@ class huoZiYinShua:
 	
 	#直接播放
 	def directPlay(self, rawData, tempPath="./HZYSTempOutput/temp.wav",
-					inYsddMode=False, pitchShift="disabled"):
-		self.__concatenate(rawData, inYsddMode, pitchShift)
+					inYsddMode=False, pitchShift=1, norm=False, reverse=False):
+		self.__concatenate(rawData, inYsddMode, pitchShift, norm, reverse)
 		self.__export(tempPath)
 		playsound(tempPath)
 	
 	
 	
 	#生成中间文件
-	def __concatenate(self, rawData, inYsddMode, pitchShift):
+	def __concatenate(self, rawData, inYsddMode, pitchShift, norm, reverse):
 		missingPinyin = []
 		self.__concatenated = np.array([])
 		
@@ -190,7 +192,9 @@ class huoZiYinShua:
 						#拼接每一个字
 						try:
 							self.__concatenated = np.concatenate((self.__concatenated,
-																_loadAudio(self.__voicePath + word + ".wav")))
+																_loadAudio(self.__voicePath
+																			+ word + ".wav",
+																			norm)))
 						#如果出现错误
 						except Exception as e:
 							print(e)		#显示错误信息
@@ -208,7 +212,8 @@ class huoZiYinShua:
 					self.__concatenated = np.concatenate((self.__concatenated,
 														_loadAudio(self.__ysddPath
 																	+ self.__ysddTable[pronunciations[i][0]]
-																	+ ".wav")))
+																	+ ".wav",
+																	norm)))
 				#如果出现错误
 				except Exception as e:
 					print(e)		#显示错误信息
@@ -221,15 +226,17 @@ class huoZiYinShua:
 
 
 		#音高偏移
-		if (pitchShift != "disabled"):
-			self.__concatenated = _shiftPitch(self.__concatenated,
-											_keyWordPitchMap[pitchShift])
+		if (pitchShift != 1):
+			self.__concatenated = _shiftPitch(self.__concatenated, pitchShift)
 		
+		#倒放
+		if(reverse):
+			self.__concatenated = np.flip(self.__concatenated)
 
 		#如果缺失拼音，则发出警告
 		if len(missingPinyin) != 0:
 			print("警告：缺失或未定义{}".format(missingPinyin))
-		
+
 
 	
 	#导出wav文件
