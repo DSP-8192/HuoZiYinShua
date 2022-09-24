@@ -1,2 +1,2 @@
-nuitka3 --disable-console --enable-plugin=numpy,tk-inter --standalone --nofollow-import-to=matplotlib --onefile --output-dir=./excutables/Linux/ ./HZYS_GUI.py
-nuitka3 --enable-console --enable-plugin=numpy --nofollow-import-to=matplotlib --standalone --onefile --output-dir=./excutables/Linux/ ./HZYS.py
+nuitka3 --enable-console --enable-plugin=numpy --nofollow-import-to=matplotlib --standalone --onefile --output-dir=./excutables/Linux/ ./HZYS.py;
+nuitka3 --disable-console --enable-plugin=numpy,tk-inter --nofollow-import-to=matplotlib --standalone --onefile --output-dir=./excutables/Linux/ ./HZYS_GUI.py;

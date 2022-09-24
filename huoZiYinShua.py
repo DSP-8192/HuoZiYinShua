@@ -61,14 +61,30 @@ def _loadAudio(fileDir, norm):
 
 
 
-#移动音高
-def _shiftPitch(data, scaleFactor):
-	#不改变音高的同时在时间上拉伸（PSOLA）
-	dataStretched = psola.vocode(data, _targetSR, constant_stretch=1/scaleFactor)
-	#拉伸至原来的长度，但是改变原来的音高
-	dataPitchShifted = np.interp(np.array(range(len(data))),
-								np.linspace(0,len(data)-1,len(dataStretched)), dataStretched)
-	return dataPitchShifted
+#改变音高和速度
+def _modifyPitchAndSpeed(data, pitchMultiple, speedMultiple):
+	if (pitchMultiple == 1 and speedMultiple == 1):
+		#没有改动的必要，直接返回
+		return data
+	
+	elif (pitchMultiple > 2 or speedMultiple < 0.5):
+		print("过于极端的音调和速度参数可能导致输出结果与预期不符，故不作改动")
+		return data
+	
+	else:
+		#第一次拉伸
+		if (speedMultiple / pitchMultiple == 1):
+			#没有拉伸的必要
+			step1 = data
+		else:
+			#不改变音高的同时在时间上拉伸（PSOLA）
+			#constant_stretch过小会导致bug，因此分两次拉伸
+			step1 = psola.vocode(data, _targetSR, constant_stretch=1/pitchMultiple)
+			step1 = psola.vocode(step1, _targetSR, constant_stretch=speedMultiple)
+		#第二次拉伸，以改变音高的方式拉伸回来
+		newLength = int(len(data) / speedMultiple)
+		step2 = np.interp(np.array(range(newLength)), np.linspace(0,newLength-1,len(step1)), step1)
+		return step2
 
 
 
@@ -115,8 +131,8 @@ class huoZiYinShua:
 	
 	#直接导出
 	def export(self, rawData, filePath="./Output.wav", inYsddMode=False,
-				pitchShift=1, norm=False, reverse=False):		
-		self.__concatenate(rawData, inYsddMode, pitchShift, norm, reverse)
+				pitchMult=1, speedMult=1, norm=False, reverse=False):		
+		self.__concatenate(rawData, inYsddMode, pitchMult, speedMult, norm, reverse)
 		self.__export(filePath)
 		print("已导出到" + filePath + "下")
 	
@@ -124,15 +140,15 @@ class huoZiYinShua:
 	
 	#直接播放
 	def directPlay(self, rawData, tempPath="./HZYSTempOutput/temp.wav",
-					inYsddMode=False, pitchShift=1, norm=False, reverse=False):
-		self.__concatenate(rawData, inYsddMode, pitchShift, norm, reverse)
+					inYsddMode=False, pitchMult=1, speedMult=1, norm=False, reverse=False):
+		self.__concatenate(rawData, inYsddMode, pitchMult, speedMult, norm, reverse)
 		self.__export(tempPath)
 		playsound(tempPath)
 	
 	
 	
 	#生成中间文件
-	def __concatenate(self, rawData, inYsddMode, pitchShift, norm, reverse):
+	def __concatenate(self, rawData, inYsddMode, pitchMult, speedMult, norm, reverse):
 		missingPinyin = []
 		self.__concatenated = np.array([])
 		
@@ -226,8 +242,7 @@ class huoZiYinShua:
 
 
 		#音高偏移
-		if (pitchShift != 1):
-			self.__concatenated = _shiftPitch(self.__concatenated, pitchShift)
+		self.__concatenated = _modifyPitchAndSpeed(self.__concatenated, pitchMult, speedMult)
 		
 		#倒放
 		if(reverse):

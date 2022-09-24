@@ -35,8 +35,11 @@ def onDirectPlay():
 	#播放
 	textToRead = textArea.get(1.0, 'end')
 	myProcess = Process(target=HZYS.directPlay,
-						kwargs={"rawData": textToRead, "inYsddMode": inYsddMode.get(),
-								"pitchShift": pitchShiftOption.get(), "norm": normAudio.get(),
+						kwargs={"rawData": textToRead,
+								"inYsddMode": inYsddMode.get(),
+								"pitchMult": pitchMultOption.get(),
+								"speedMult": speedMultOption.get(),
+								"norm": normAudio.get(),
 								"reverse": reverseAudio.get()})
 	myProcess.start()
 
@@ -49,8 +52,12 @@ def onExport():
 	if(outputFile != ""):
 		if not outputFile.endswith(".wav"):
 			outputFile += ".wav"
-		HZYS.export(textToRead, filePath=outputFile, inYsddMode=inYsddMode.get(),
-					pitchShift=pitchShiftOption.get(), norm=normAudio.get(),
+		HZYS.export(textToRead,
+					filePath=outputFile,
+					inYsddMode=inYsddMode.get(),
+					pitchMult=pitchMultOption.get(),
+					speedMult=speedMultOption.get(),
+					norm=normAudio.get(),
 					reverse=reverseAudio.get())
 		messagebox.showinfo("疑似是成功了", "已导出到" + outputFile +"下")
 
@@ -158,7 +165,8 @@ def createConfigWindow():
 inYsddMode = BooleanVar()
 normAudio = BooleanVar()
 reverseAudio = BooleanVar()
-pitchShiftOption = DoubleVar()
+pitchMultOption = DoubleVar()
+speedMultOption = DoubleVar()
 
 
 
@@ -192,7 +200,7 @@ ysddCkBt = Checkbutton(mainWindow, text="匹配到特定文字时使用原声大
 
 
 #标准化音频复选框
-normCkBt = Checkbutton(mainWindow, text="分别标准化每个字和每条原声大碟句子",
+normCkBt = Checkbutton(mainWindow, text="统一每个字和每条原声大碟句子的音量",
 						variable=normAudio, onvalue=True, offvalue=False,
 						font=font.Font(family="微软雅黑", size=10))
 
@@ -204,13 +212,24 @@ reverseCkBt = Checkbutton(mainWindow, text="频音的成生放倒",
 
 
 #音调偏移文本
-pitchShiftLabel = Label(mainWindow, text="音调偏移选项：",
-					font=font.Font(family="微软雅黑", size=10))
+pitchMultLabel = Label(mainWindow, text="音调偏移：",
+						font=font.Font(family="微软雅黑", size=10))
 
 
-#音调偏移
-pitchShiftScale = Scale(mainWindow, from_=0.4, to=2.0, orient=HORIZONTAL, width=15, length=200,
-						resolution=0.1, variable=pitchShiftOption,
+#音调偏移滑块
+pitchMultScale = Scale(mainWindow, from_=0.5, to=2.0, orient=HORIZONTAL, width=15, length=200,
+						resolution=0.1, variable=pitchMultOption,
+						font=font.Font(family="微软雅黑", size=9))
+
+
+#播放速度文本
+speedMultLable = Label(mainWindow, text="播放速度：",
+						font=font.Font(family="微软雅黑", size=10))
+
+
+#播放速度滑块
+speedMultScale = Scale(mainWindow, from_=0.5, to=2.0, orient=HORIZONTAL, width=15, length=200,
+						resolution=0.1, variable=speedMultOption,
 						font=font.Font(family="微软雅黑", size=9))
 
 
@@ -229,7 +248,7 @@ if __name__ == "__main__":
 
 	#主窗口
 	#-----------------------------
-	mainWindow.geometry("480x420")
+	mainWindow.geometry("480x460")
 	mainWindow.title("欧炫！纯纯的活字印刷")
 	mainWindow.resizable(False, False)
 	#窗口图标
@@ -251,9 +270,13 @@ if __name__ == "__main__":
 	normCkBt.place(x=20, y=305)
 	reverseCkBt.place(x=20, y=330)
 	
-	pitchShiftLabel.place(x=20, y=375)
-	pitchShiftOption.set(1)
-	pitchShiftScale.place(x=110, y=360)
+	pitchMultLabel.place(x=20, y=375)
+	pitchMultOption.set(1)
+	pitchMultScale.place(x=110, y=360)
+
+	speedMultLable.place(x=20, y=415)
+	speedMultOption.set(1)
+	speedMultScale.place(x=110, y=400)
 
 
 	#检查活字印刷实例是否配置正确

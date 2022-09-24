@@ -6,23 +6,44 @@
 
 素材目录、词典目录在"settings.json"中编辑
 
+
+
+
+<br>
+
 huoZiYinShua类里有两个方法：
 ```python
-huoZiYinShua.export(rawData, filePath="./Output.wav", inYsddMode=False, pitchShift="disabled")
-	# rawData为要阅读的文本（字符串）
-	# filePath为保存的文件路径（字符串）
-	# inYsddMode为是否使用原声大碟模式（boolean变量，默认否）
-	# pitchShift为音调偏移模式（字符串，默认"disabled"）
-		#可用值：小孩音"xiaohai"，老头音"laotou"，性转"xingzhuan"，不偏移"disabled"
+huoZiYinShua.export(rawData,
+					filePath="./Output.wav",
+					inYsddMode=False,
+					pitchMult=1,
+					speedMult=1,
+					norm=False,
+					reverse=False)
 ```
+	`rawData`为要阅读的文本（字符串）
+	`filePath`为保存的文件路径（字符串）
+	`inYsddMode`为是否使用原声大碟模式（布尔变量）
+	`pitchMult`为生成的音频频率相对原本音频频率的倍数（数字）
+	`speedMult`为生成的音频速度相对原本音频速度的倍数（数字）
+	`norm`为是否标准化，即统一各个素材片段的响度（布尔变量）
+	（量变尔布）放倒否是为`esrever`
+
+<br>
+
+
 
 ```python
-huoZiYinShua.directPlay(rawData, tempPath="./HZYSTempOutput/temp.wav", inYsddMode=False)
-	# rawData同上
-	# tempPath为临时文件路径，可不填
-	# inYsddMode同上
-	# pitchShift同上
+huoZiYinShua.directPlay(rawData,
+						tempPath="./HZYSTempOutput/temp.wav",inYsddMode=False,
+						pitchMult=1,
+						speedMult=1,
+						norm=False,
+						reverse=False)
 ```
+	`tempPath`为临时音频文件存放路径
+	其它同上
+
 
 效果：https://www.bilibili.com/video/BV1R541117uE
 
