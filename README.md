@@ -30,7 +30,8 @@ huoZiYinShua.export(rawData,
 
 ```python
 huoZiYinShua.directPlay(rawData,
-                        tempPath="./HZYSTempOutput/temp.wav",inYsddMode=False,
+                        tempPath="./HZYSTempOutput/temp.wav",
+                        inYsddMode=False,
                         pitchMult=1,
                         speedMult=1,
                         norm=False,
@@ -62,8 +63,10 @@ huoZiYinShua.directPlay(rawData,
 ```powershell
 ./HZYS.exe -t 我是电棍 #输出对应的音频文本到Output.wav
 ./HZYS.exe -f text.txt -o 输出.wav #输出text.txt内的音频文本到输出.wav
-./HYZS.exe -t 卧槽冰 -d #直接播放(参数-d)
-./HZYS.exe -t 大家好啊 -d -y #使用原声大碟
-./HZYS.exe -t 啊啊啊啊啊 -d -p xiaohai #使用小孩音
+./HYZS.exe -t 卧槽冰 -d #直接播放
+./HZYS.exe -t 说的道理 -d -y #使用原声大碟
+./HZYS.exe -t 啊啊啊啊啊 -d -p 1.5 #使用小孩音
+./HZYS.exe -t 大家好啊 -d -y -r #倒放
+./HZYS.exe -t 冲刺冲刺冲 -d -s 1.5 #加速
 ./HYZS.exe -h #显示帮助
 ```
