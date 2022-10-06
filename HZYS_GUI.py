@@ -101,7 +101,8 @@ def setConfig(option, texts):
 	optionArray = ["sourceDirectory", "ysddSourceDirectory", "dictFile", "ysddTableFile"]
 	texts[optionArray.index(option)].configure(text=configuration[option])
 	#更新活字印刷实例配置
-	HZYS.config("./settings.json")
+	global HZYS
+	HZYS = huoZiYinShua("./settings.json")
 
 
 
@@ -281,7 +282,7 @@ if __name__ == "__main__":
 
 	#检查活字印刷实例是否配置正确
 	if not HZYS.configSucceed():
-		messagebox.showerror("配置活字印刷实例失败", "请检查设置的文件路径是否正确")
+		messagebox.showwarning("初始化活字印刷实例失败", "请检查设置的文件路径是否正确")
 	
 	#启动主窗口
 	mainWindow.mainloop()

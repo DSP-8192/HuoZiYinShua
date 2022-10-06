@@ -1,6 +1,6 @@
 {
-	"sourceDirectory": "/media/dsp8192/个人文件/鬼畜/活字印刷本地版/sources/",
-	"ysddSourceDirectory": "/media/dsp8192/个人文件/鬼畜/活字印刷本地版/ysddSources/",
-	"dictFile": "/media/dsp8192/个人文件/鬼畜/活字印刷本地版/dictionary.json",
-	"ysddTableFile": "/media/dsp8192/个人文件/鬼畜/活字印刷本地版/ysddTable.json"
+	"sourceDirectory": "./sources/",
+	"ysddSourceDirectory": "./ysddSources/",
+	"dictFile": "./dictionary.json",
+	"ysddTableFile": "./ysddTable.json"
 }

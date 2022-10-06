@@ -95,8 +95,32 @@ def _modifyPitchAndSpeed(data, pitchMultiple, speedMultiple):
 class huoZiYinShua:
 	def __init__(self, configFileLoc):
 		try:
-			self.config(configFileLoc)
+			#读取设置文件
+			configFile = open(configFileLoc, encoding="utf8")
+			configuration = json.load(configFile)
+			configFile.close()
+
+			dictFile = open(configuration["dictFile"], encoding="utf8")					#读取单字词典 (json)
+			ysddTableFile = open(configuration["ysddTableFile"], encoding="utf8")		#读取原声大碟文本与文件名对照表 (json)
+
+			self.__voicePath = configuration["sourceDirectory"]					#单字音频文件存放目录
+			self.__ysddPath = configuration["ysddSourceDirectory"]				#原声大碟音频文件存放目录
+			self.__dictionary = json.load(dictFile)								#定义非中文字符读法的词典
+			self.__ysddTable = json.load(ysddTableFile)							#原声大碟文本与文件名对照表
+
+			#统一为小写
+			dictItems = list(self.__ysddTable.items())
+			#转换为list是为了切断dictItems与self.__ysddTable的联系，否则报错dictionary changed size during iteration
+			for i in dictItems:
+				self.__ysddTable[i[0].lower()] = self.__ysddTable.pop(i[0])
+			#从长到短排序，越长片段优先级越高
+			self.__ysddTable = sorted(self.__ysddTable.items(),
+										key=lambda x:len(x[0]),
+										reverse=True)
+			self.__ysddTable = dict(self.__ysddTable)
+
 			self.__configSucceed = True
+
 		except Exception as e:
 			self.__configSucceed = False
 			print(e)		
@@ -106,26 +130,7 @@ class huoZiYinShua:
 	#配置是否成功
 	def configSucceed(self):
 		return self.__configSucceed
-
-
-
-	#配置
-	def config(self, configFileLoc):
-		#读取设置文件
-		configFile = open(configFileLoc, encoding="utf8")
-		configuration = json.load(configFile)
-		configFile.close()
-
-		dictFile = open(configuration["dictFile"], encoding="utf8")					#读取单字词典 (json)
-		ysddTableFile = open(configuration["ysddTableFile"], encoding="utf8")		#读取原声大碟文本与文件名对照表 (json)
-
-		self.__voicePath = configuration["sourceDirectory"]					#单字音频文件存放目录
-		self.__ysddPath = configuration["ysddSourceDirectory"]				#原声大碟音频文件存放目录
-		self.__dictionary = json.load(dictFile)								#定义非中文字符读法的词典
-		self.__ysddTable = json.load(ysddTableFile)							#原声大碟文本与文件名对照表
-
-		self.__ysddTable = sorted(self.__ysddTable.items(), key=lambda x:len(x[0]), reverse=True)	#从长到短排序
-		self.__ysddTable = dict(self.__ysddTable)
+		
 
 
 	
