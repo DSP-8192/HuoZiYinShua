@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	#从文件读取输入
-	if (args.file != ""):
+	if args.file:
 		#读取要活字印刷的内容
 		textFile = open(args.file, encoding="utf8")
 		textToRead = textFile.read()
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
 	#判定命令行参数，确定是否直接播放声音
 	#直接播放
-	if (args.directplay == True):
+	if args.directplay:
 		print("直接播放")
 		HZYS.directPlay(textToRead,
 						inYsddMode=args.inYsddMode,

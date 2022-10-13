@@ -87,9 +87,9 @@ def setConfig(option, texts):
 	configuration = readConfig()
 	userConfig = ""
 	#让用户选择文件或目录
-	if (option == "sourceDirectory" or option == "ysddSourceDirectory"):
+	if option in ("sourceDirectory", "ysddSourceDirectory"):
 		userConfig = filedialog.askdirectory(title="选择文件夹") + "/"
-	elif (option == "dictFile" or option == "ysddTableFile"):
+	elif option in ("dictFile", "ysddTableFile"):
 		userConfig = filedialog.askopenfilename(title="选择文件",
 											filetypes = (("json配置文件", "*.json"),))
 	#写入
