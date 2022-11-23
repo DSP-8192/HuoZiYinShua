@@ -1,0 +1,80 @@
+<!doctype html>
+
+<head>
+    <link rel="shortcut icon" href="lizi.ico">
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        crossorigin="anonymous">
+    <style>
+        /* 防止遮挡 */
+        body {
+            padding-top: 50px;
+        }
+
+        .sub-header {
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+
+        .navbar-fixed-top {
+            border: 0;
+        }
+
+
+        .main {
+            padding: 20px;
+        }
+
+        .main .page-header {
+            margin-top: 0;
+        }
+
+        .placeholders {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .placeholders h4 {
+            margin-bottom: 0;
+        }
+
+        .placeholder {
+            margin-bottom: 20px;
+        }
+
+        .placeholder img {
+            display: inline-block;
+            border-radius: 50%;
+        }
+    </style>
+    <title>欧炫！纯纯的活字印刷</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">活字印刷 Web版</a>
+            </div>
+        </div>
+    </nav>
+    <div class="col-sm-9 col-md-10 main">
+        {% if name %}
+        <h2>导出成功！</h2>
+        <p><a href="/getVoices?id={{ name }}">点此下载</a></p>
+        <small>文件只保留一次。</small>
+        {% else %}
+        <h1>错误</h1>
+        <p>没有正确的输出。</p>
+        <p>请检查服务器状态，或<a href="/">再试一次</a>。</p>
+        {% endif %}
+    </div>
+
+    <script>
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        crossorigin="anonymous"></script>
+</body>

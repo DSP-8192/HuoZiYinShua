@@ -7,3 +7,4 @@ playsound
 #需要去原作者Github页面下载最新的playsound.py
 #https://github.com/TaylorSMarks/playsound/blob/master/playsound.py
 Pillow
+flask
