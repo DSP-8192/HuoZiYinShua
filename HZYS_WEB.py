@@ -4,6 +4,10 @@ import os
 
 app = Flask(__name__)
 tempDir = "./HZYSTempOutput"
+HZYS = huoZiYinShua("./settings.json")
+Voices = []
+if not (os.path.exists(tempDir)):
+    os.makedirs(tempDir)
 
 
 @app.route('/')
@@ -57,8 +61,4 @@ def getVoice():
 
 
 if __name__ == '__main__':
-    HZYS = huoZiYinShua("./settings.json")
-    Voices = []
-    if not (os.path.exists(tempDir)):
-        os.makedirs(tempDir)
     app.run(host="127.0.0.1", port=1234)
