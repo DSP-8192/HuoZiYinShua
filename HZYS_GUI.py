@@ -7,6 +7,39 @@ from huoZiYinShua import *
 from multiprocessing import Process, freeze_support
 from PIL import ImageTk, Image
 import json
+#探测 soundfile 支持的导出格式，供导出对话框使用
+def _getExportFiletypes():
+	labels = {
+		"wav": "WAV音频", "aiff": "AIFF音频", "au": "AU音频", "paf": "PAF音频",
+		"svx": "IFF/SVX音频", "nist": "NIST音频", "voc": "VOC音频",
+		"ircam": "IRCAM音频", "w64": "W64音频", "mat5": "MATLAB(mat5)",
+		"pvf": "PVF音频", "xi": "XI音频", "htk": "HTK音频", "sds": "SDS音频",
+		"avr": "AVR音频", "flac": "FLAC音频", "caf": "CAF音频",
+		"wve": "WVE音频", "ogg": "OGG/Vorbis音频", "mp3": "MP3音频",
+		"rf64": "RF64音频",
+	}
+	result = []
+	try:
+		import soundfile as _sf, numpy as _np, tempfile as _tf, os as _os
+		_data = _np.zeros(2205, dtype=_np.float64)
+		_tmp = _tf.gettempdir()
+		for _ext in labels:
+			_p = _os.path.join(_tmp, "_hzys_probe." + _ext)
+			try:
+				_sf.write(_p, _data, 22050)
+				_sf.info(_p)
+				_os.remove(_p)
+				result.append((labels[_ext], "*." + _ext))
+			except Exception:
+				pass
+	except Exception:
+		pass
+	if not result:
+		result = [("WAV音频", "*.wav"), ("MP3音频", "*.mp3")]
+	return tuple(result)
+
+_exportFiletypes = _getExportFiletypes()
+_exportExts = tuple("." + _pat[2:] for _lbl, _pat in _exportFiletypes)
 
 
 #新建活字印刷类实例
@@ -48,9 +81,15 @@ def onDirectPlay():
 def onExport():
 	textToRead = textArea.get(1.0, 'end')
 	outputFile = filedialog.asksaveasfilename(title="选择导出路径",
-											filetypes = (("wav音频文件", "*.wav"),))
+												filetypes = _exportFiletypes,
+												defaultextension = ".wav")
 	if(outputFile != ""):
-		if not outputFile.endswith(".wav"):
+		_hasExt = False
+		for _e in _exportExts:
+			if outputFile.lower().endswith(_e):
+				_hasExt = True
+				break
+		if not _hasExt:
 			outputFile += ".wav"
 		HZYS.export(textToRead,
 					filePath=outputFile,
