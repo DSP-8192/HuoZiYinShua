@@ -2,5 +2,12 @@
 	"sourceDirectory": "./sources/",
 	"ysddSourceDirectory": "./ysddSources/",
 	"dictFile": "./dictionary.json",
-	"ysddTableFile": "./ysddTable.json"
+	"ysddTableFile": "./ysddTable.json",
+	"pause": {
+		"短": 150,
+		"较短": 250,
+		"中": 400,
+		"较长": 600,
+		"长": 800
+	}
 }

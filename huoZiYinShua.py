@@ -8,6 +8,7 @@ import numpy as np
 from playsound import playsound
 from pypinyin import lazy_pinyin
 import json
+import unicodedata
 from pathlib import Path
 
 
@@ -18,6 +19,22 @@ from pathlib import Path
 #--------------------------------------------
 #目标采样率
 _targetSR = 44100
+
+#停顿标记，用于在拼音流中标记一个停顿
+_pauseMark = "\ue000"
+
+#停顿类型与对应的标记编码（编码不用汉字，避免被拼音转换破坏）
+_pauseCodes = {"短": "0", "较短": "1", "中": "2", "较长": "3", "长": "4"}
+_defaultPauses = {"0": 150, "1": 250, "2": 400, "3": 600, "4": 800}
+
+#默认的符号停顿分类表（可在dictionary.json的pauseSymbols中自定义覆盖）
+_defaultPauseSymbols = {
+	"短": "、\u3000 ‘’“”'\"",
+	"较短": "，,/／\t()（）[]【】{}｛｝",
+	"中": ":：;；",
+	"较长": "。．!！?？",
+	"长": "\n\r\f\v"
+}
 
 
 
@@ -108,6 +125,26 @@ class huoZiYinShua:
 			self.__dictionary = json.load(dictFile)								#定义非中文字符读法的词典
 			self.__ysddTable = json.load(ysddTableFile)							#原声大碟文本与文件名对照表
 
+			#读取停顿符号分类表（dictionary.json中的pauseSymbols字段），未定义的类型使用默认表
+			pauseSymbols = self.__dictionary.pop("pauseSymbols", {})
+			for pauseType in _defaultPauseSymbols:
+				if pauseType not in pauseSymbols:
+					pauseSymbols[pauseType] = _defaultPauseSymbols[pauseType]
+			#构建符号到停顿编码的反查表
+			self.__pauseLookup = {}
+			for pauseType in _pauseCodes:
+				for symbol in pauseSymbols.get(pauseType, ""):
+					self.__pauseLookup[symbol] = _pauseCodes[pauseType]
+
+			#读取停顿时长设置（settings.json中的pause字段，单位：毫秒），未定义的类型使用默认值
+			pauseConfig = configuration.get("pause", {})
+			self.__pauseTime = {}
+			for pauseType in _pauseCodes:
+				try:
+					self.__pauseTime[_pauseCodes[pauseType]] = int(pauseConfig[pauseType])
+				except:
+					self.__pauseTime[_pauseCodes[pauseType]] = _defaultPauses[_pauseCodes[pauseType]]
+
 			#统一为小写
 			dictItems = list(self.__ysddTable.items())
 			#转换为list是为了切断dictItems与self.__ysddTable的联系，否则报错dictionary changed size during iteration
@@ -126,11 +163,9 @@ class huoZiYinShua:
 			print(e)		
 
 
-
 	#配置是否成功
 	def configSucceed(self):
 		return self.__configSucceed
-		
 
 
 	
@@ -187,10 +222,26 @@ class huoZiYinShua:
 			#使用活字印刷
 			if (not splitted[i][1]):
 				pronunciations[i].append("")
+				lastIsBreak = False
 				for ch in splitted[i][0]:
-					if ch in self.__dictionary:
+					if ch in ("\r", "\n"):
+						#连续的换行符只算一次停顿
+						if lastIsBreak:
+							continue
+						lastIsBreak = True
+					else:
+						lastIsBreak = False
+					if ch in self.__pauseLookup:
+						#符号：插入停顿标记
+						pronunciations[i][0] += (_pauseMark + self.__pauseLookup[ch]
+											+ _pauseMark + " ")
+					elif ch in self.__dictionary:
 						#词典中存在匹配，转换
 						pronunciations[i][0] += self.__dictionary[ch] + " "
+					elif unicodedata.category(ch)[0] in ("P", "S"):
+						#其他未定义的符号，按“较长”停顿处理
+						pronunciations[i][0] += (_pauseMark + _pauseCodes["较长"]
+												+ _pauseMark + " ")
 					else:
 						#保持不变
 						pronunciations[i][0] += ch + " "
@@ -210,21 +261,29 @@ class huoZiYinShua:
 				#拆成单独的字
 				for text in pinyin:
 					for word in text.split():
-						#拼接每一个字
-						try:
+						#停顿标记：插入对应时长的空白音频
+						if word.startswith(_pauseMark) and word.endswith(_pauseMark):
+							pauseLength = int(_targetSR
+											* self.__pauseTime.get(word[1:-1],
+												self.__pauseTime[_pauseCodes["较长"]]) / 1000)
 							self.__concatenated = np.concatenate((self.__concatenated,
-																_loadAudio(self.__voicePath
-																			+ word + ".wav",
-																			norm)))
-						#如果出现错误
-						except Exception as e:
-							print(e)		#显示错误信息
-							#加入缺失素材列表
-							if word not in missingPinyin:
-								missingPinyin.append(word)
-							#以空白音频代替
-							self.__concatenated = np.concatenate((self.__concatenated,
-																np.zeros(int(_targetSR/4))))
+																np.zeros(pauseLength)))
+						else:
+							#拼接每一个字
+							try:
+								self.__concatenated = np.concatenate((self.__concatenated,
+																	_loadAudio(self.__voicePath
+																				+ word + ".wav",
+																				norm)))
+							#如果出现错误
+							except Exception as e:
+								print(e)		#显示错误信息
+								#加入缺失素材列表
+								if word not in missingPinyin:
+									missingPinyin.append(word)
+								#以空白音频代替
+								self.__concatenated = np.concatenate((self.__concatenated,
+																	np.zeros(int(_targetSR/4))))
 			
 			#使用原声大碟
 			else:
@@ -259,7 +318,7 @@ class huoZiYinShua:
 
 
 	
-	#导出wav文件
+	#导出音频文件（根据扩展名自动选择格式，支持wav/mp3等libsndfile支持的格式）
 	def __export(self, filePath):
 		folderPath = _fileName2FolderName(filePath)
 		if not Path(folderPath).exists():
